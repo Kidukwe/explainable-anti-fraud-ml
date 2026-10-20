@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Anti-Fraud · среда разработки</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+<main>
+  <p class="eyebrow">Университетский проект · ML Engineering</p>
+  <h1>Ozon Anti-Fraud</h1>
+  <p>Основа для исследования подозрительных заказов и аномальных возвратов.</p>
+  <p class="notice">Учебная работа по заданию партнёра. Не официальный продукт OZON.</p>
+  <section aria-labelledby="status-title">
+    <h2 id="status-title">Состояние системы</h2>
+    <dl><dt>API</dt><dd id="api-status" aria-live="polite">Проверяем…</dd>
+    <dt>Модель</dt><dd id="model-status">Проверяем…</dd></dl>
+    <button id="refresh" type="button">Обновить</button>
+  </section>
+  <section><h2>Качество модели</h2>
+    <p id="metrics-status" aria-live="polite">Проверяем наличие результатов…</p>
+    <p>План оценки: ROC-AUC, precision, recall, PR-AUC и F1.
+    Порог решения и схема валидации будут согласованы до обучения.</p>
+  </section>
+  <nav><a href="/docs">OpenAPI / Swagger</a> · <a href="/healthz">Проверка API</a></nav>
+</main>
+</body>
+</html>

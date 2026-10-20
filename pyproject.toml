@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ozon-antifraud"
+version = "0.1.0"
+description = "University anti-fraud ML project infrastructure"
+requires-python = ">=3.12,<3.13"
+dependencies = ["fastapi>=0.115,<1", "pydantic>=2.10,<3", "uvicorn>=0.34,<1"]
+
+[project.optional-dependencies]
+ml = ["numpy>=2,<3", "pandas>=2.2,<3", "scikit-learn>=1.6,<2", "catboost>=1.2,<2"]
+xai = ["shap>=0.46,<1"]
+notebooks = ["jupyterlab>=4.3,<5", "ipykernel>=6.29,<8", "matplotlib>=3.9,<4", "seaborn>=0.13,<1"]
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "ruff>=0.11,<1", "httpx2>=2,<3", "pyyaml>=6,<7"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/antifraud", "backend"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --import-mode=importlib"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]

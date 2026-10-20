@@ -1,0 +1,7 @@
+# Inactive example: activate as CODEOWNERS only after these users have accepted write access.
+# /src/antifraud/ @Kidukwe @chilldonald
+# /backend/ @lina596 @ksy78-lang
+# /backend/static/ @ksy78-lang @lina596
+# /Dockerfile @HazDeen @Kidukwe
+# /docker-compose.yml @HazDeen @Kidukwe
+# /.github/ @HazDeen @Kidukwe
