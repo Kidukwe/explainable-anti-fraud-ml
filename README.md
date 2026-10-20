@@ -48,6 +48,8 @@ uv run --extra ml --extra notebooks --extra xai jupyter lab
 Указывайте нужные extras и в исследовательских `uv run`: uv синхронизирует выбранный
 состав окружения. Базовый API не требует ML, SHAP или Jupyter.
 
+Фактическая проверка первого коммита: [bootstrap verification](docs/bootstrap-verification.md).
+
 ## Проверки и Docker
 
 ```bash
