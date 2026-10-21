@@ -1,6 +1,6 @@
 # S1 · Проверка bootstrap, Git/PR/CI и запуска
 
-Дата проверки: 21 октября 2026. Ветка: `codex/S1-bootstrap-verification`.
+Дата проверки: 21 октября 2026. Ветка: `feature/S1-bootstrap-verification`.
 Основа опубликована в `main`: [bootstrap SHA fe8359cd1912b3c30b55919a1ccd2f9e8ba69e1d](https://github.com/Kidukwe/explainable-anti-fraud-ml/commit/fe8359cd1912b3c30b55919a1ccd2f9e8ba69e1d).
 Предыдущий [PR #1 с отчётом bootstrap](https://github.com/Kidukwe/explainable-anti-fraud-ml/pull/1)
 ещё открыт на момент проверки. Этот S1 дополняет его инструкцией и новыми проверками;

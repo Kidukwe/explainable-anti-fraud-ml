@@ -112,7 +112,7 @@ ML extras: pandas, NumPy, scikit-learn, CatBoost; XAI: SHAP; notebooks: Jupyter.
 [Правила PR](CONTRIBUTING.md) и [ответственность / DoD](docs/team-workflow.md).
 Актуальные назначения и спринт ведёт организатор; этот README не дублирует Kanban.
 
-Для S1: ветка `codex/S1-bootstrap-verification` → PR в `main`;
+Для S1: ветка `feature/S1-bootstrap-verification` → PR в `main`;
 независимое review и повторный запуск выполняет Алина (@lina596).
 [Отчёт S1, фактические логи и чек-лист приёмки](docs/s1-verification.md).
 
