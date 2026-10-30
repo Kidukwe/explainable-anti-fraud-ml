@@ -1,7 +1,7 @@
 [
   {
     "id": "all",
-    "title": "Все операции",
+    "title": "All operations",
     "content": "TransactionsPanel",
     "status": null
   },

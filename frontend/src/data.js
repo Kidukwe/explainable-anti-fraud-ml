@@ -1,8 +1,8 @@
 //пока чисто рандом данные, потом будет связь с API
 export const statuses = {
-  approved: { title: 'Approved', message: 'Автоматически одобрено', icon: '✓', result: 'Операция прошла проверку и не требует дополнительного рассмотрения.' },
-  banned: { title: 'Banned', message: 'Автоматически заблокировано', icon: '×' },
-  consideration: { title: 'Consideration', message: 'На рассмотрении', icon: '…' }
+  approved: { title: 'Approved', message: 'Approved', icon: '✓', result: 'Операция прошла проверку и не требует дополнительного рассмотрения.' },
+  banned: { title: 'Banned', message: 'Banned', icon: '×' },
+  consideration: { title: 'Consideration', message: 'Consideration', icon: '…' }
 };
 
 export const transactions = [

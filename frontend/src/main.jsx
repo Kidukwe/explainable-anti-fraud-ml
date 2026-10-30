@@ -6,6 +6,7 @@ import { filterTransactions, money, number, toCsv } from './utils.js';
 import './style.css';
 import { mockScenarios } from './mockScenarios.js';
 import OperationCheck from './OperationCheck.jsx';
+import ozonLogo from './assets/ozon-logo.png';
 
 function StatusBadge({ status }) {
   return <span className={'badge ' + status}><span className="dot" aria-hidden="true"/>{statuses[status].title}</span>;
@@ -17,7 +18,21 @@ function ProductIllustration() {
   return <svg className="product-image" viewBox="0 0 126 126" role="img" aria-label="Иллюстрация аэрогриля"><defs><linearGradient id="product" x2="1" y2="1"><stop stopColor="#E8F3FF"/><stop offset="1" stopColor="#FCEAF3"/></linearGradient></defs><rect width="126" height="126" rx="12" fill="url(#product)"/><ellipse cx="63" cy="113" rx="39" ry="5" fill="#182640" opacity=".08"/><rect x="30" y="18" width="66" height="87" rx="18" fill="#283247"/><rect x="37" y="23" width="52" height="20" rx="10" fill="#172033"/><rect x="37" y="49" width="52" height="45" rx="10" fill="#414C61"/><rect x="43" y="54" width="40" height="31" rx="8" fill="#151D2D"/><rect x="51" y="55" width="24" height="4" rx="2" fill="#7A879A"/><rect x="55" y="89" width="17" height="3" rx="1" fill="#A5ADBE"/></svg>;
 }
 function Header() {
-  return <header className="header"><span className="logo" aria-label="Ozon">OZON</span><div className="header-title"><span>ФИНАНСОВЫЙ КОНТРОЛЬ</span><strong>Данные транзакций</strong></div><div className="account"><span className="environment">Демонстрационный стенд</span><span className="avatar account-avatar" aria-label="Профиль АК">АК</span></div></header>;
+  return <header className="header"><div className="brand">
+  <svg
+    className="brand-logo"
+    viewBox="350 285 590 145"
+    role="img"
+    aria-label="Ozon"
+  >
+    <image
+      href={ozonLogo}
+      width="1280"
+      height="720"
+    />
+  </svg>
+  <span className="brand-caption">anti fraud</span>
+</div><div className="header-title"><span>ФИНАНСОВЫЙ КОНТРОЛЬ</span><strong>Данные транзакций</strong></div><div className="account"><span className="environment">Демонстрационный стенд</span><span className="avatar account-avatar" aria-label="Профиль АК">АК</span></div></header>;
 }
 function Sidebar({ activeId, onChange }) {
   const refs = useRef([]);

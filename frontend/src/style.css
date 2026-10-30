@@ -102,3 +102,54 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:#f7faff}tbody tr.selected:h
     padding: 16px;
   }
 }
+
+.brand {
+  width: 122px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.brand-logo {
+  display: block;
+  width: 122px;
+  height: 30px;
+}
+
+.brand-caption {
+  font-family: 'Unbounded', sans-serif;
+  color: #005bff;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+}
+
+@media (max-width: 650px) {
+  .brand-caption {
+    font-size: 9px;
+    letter-spacing: 1px;
+  }
+}
+
+  .brand-logo {
+    width: 90px;
+    height: 23px;
+  }
+
+  .brand-caption {
+    font-size: 9px;
+    letter-spacing: 1.5px;
+  }
+
+  .badge.consideration {
+  background: #f1e6ff;
+  color: #7935b5;
+}
+
+.badge.consideration .dot {
+  background: #8b3ddb;
+}
