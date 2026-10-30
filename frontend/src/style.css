@@ -71,3 +71,34 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:#f7faff}tbody tr.selected:h
 .analysis-block .check-reason {
   margin-top: 8px;
 }
+
+.scenario-toolbar {
+  margin-left: 240px;
+  padding: 16px 36px;
+}
+
+.scenario-toolbar label {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.scenario-toolbar select {
+  max-width: 100%;
+  min-width: 0;
+  padding: 8px 12px;
+}
+
+@media (max-width: 1120px) {
+  .scenario-toolbar {
+    margin-left: 210px;
+  }
+}
+
+@media (max-width: 650px) {
+  .scenario-toolbar {
+    margin-left: 0;
+    padding: 16px;
+  }
+}

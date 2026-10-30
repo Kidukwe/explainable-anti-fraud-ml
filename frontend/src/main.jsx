@@ -17,7 +17,7 @@ function ProductIllustration() {
   return <svg className="product-image" viewBox="0 0 126 126" role="img" aria-label="Иллюстрация аэрогриля"><defs><linearGradient id="product" x2="1" y2="1"><stop stopColor="#E8F3FF"/><stop offset="1" stopColor="#FCEAF3"/></linearGradient></defs><rect width="126" height="126" rx="12" fill="url(#product)"/><ellipse cx="63" cy="113" rx="39" ry="5" fill="#182640" opacity=".08"/><rect x="30" y="18" width="66" height="87" rx="18" fill="#283247"/><rect x="37" y="23" width="52" height="20" rx="10" fill="#172033"/><rect x="37" y="49" width="52" height="45" rx="10" fill="#414C61"/><rect x="43" y="54" width="40" height="31" rx="8" fill="#151D2D"/><rect x="51" y="55" width="24" height="4" rx="2" fill="#7A879A"/><rect x="55" y="89" width="17" height="3" rx="1" fill="#A5ADBE"/></svg>;
 }
 function Header() {
-  return <header className="header"><span className="logo" aria-label="Ozon">OZON</span><div className="header-title"><span>ФИНАНСОВЫЙ КОНТРОЛЬ</span><strong>Данные транзакций</strong></div><div className="account"><span className="environment">Рабочая среда</span><span className="avatar account-avatar" aria-label="Профиль АК">АК</span></div></header>;
+  return <header className="header"><span className="logo" aria-label="Ozon">OZON</span><div className="header-title"><span>ФИНАНСОВЫЙ КОНТРОЛЬ</span><strong>Данные транзакций</strong></div><div className="account"><span className="environment">Демонстрационный стенд</span><span className="avatar account-avatar" aria-label="Профиль АК">АК</span></div></header>;
 }
 function Sidebar({ activeId, onChange }) {
   const refs = useRef([]);
@@ -29,7 +29,7 @@ function Sidebar({ activeId, onChange }) {
     if (event.key === 'End') next = tabs.length - 1;
     if (next !== undefined) { event.preventDefault(); onChange(tabs[next].id); refs.current[next]?.focus(); }
   }
-  return <aside className="sidebar"><p className="eyebrow">ДАННЫЕ</p><div role="tablist" aria-label="Категории операций" aria-orientation="vertical" className="tabs">{tabs.map((tab, index) => <button key={tab.id} ref={node => { refs.current[index] = node; }} id={'tab-' + tab.id} role="tab" aria-selected={tab.id === activeId} aria-controls={'panel-' + tab.id} tabIndex={tab.id === activeId ? 0 : -1} className={'nav-tab ' + (tab.id === activeId ? 'active' : '')} onClick={() => onChange(tab.id)} onKeyDown={event => onKeyDown(event, index)}>{tab.status ? <span className={'nav-dot ' + tab.status} aria-hidden="true"/> : <span className="list-icon" aria-hidden="true">☰</span>}<span>{tab.title}</span><span className="count">{transactions.filter(item => !tab.status || item.status === tab.status).length}</span></button>)}</div><footer className="system"><div>Система работает <span className="system-dot"/></div><small>Обработка в реальном времени</small></footer></aside>;
+  return <aside className="sidebar"><p className="eyebrow">ДАННЫЕ</p><div role="tablist" aria-label="Категории операций" aria-orientation="vertical" className="tabs">{tabs.map((tab, index) => <button key={tab.id} ref={node => { refs.current[index] = node; }} id={'tab-' + tab.id} role="tab" aria-selected={tab.id === activeId} aria-controls={'panel-' + tab.id} tabIndex={tab.id === activeId ? 0 : -1} className={'nav-tab ' + (tab.id === activeId ? 'active' : '')} onClick={() => onChange(tab.id)} onKeyDown={event => onKeyDown(event, index)}>{tab.status ? <span className={'nav-dot ' + tab.status} aria-hidden="true"/> : <span className="list-icon" aria-hidden="true">☰</span>}<span>{tab.title}</span><span className="count">{transactions.filter(item => !tab.status || item.status === tab.status).length}</span></button>)}</div><footer className="system"><div>Демо-режимает <span className="system-dot"/></div><small>Модель и API не подключены</small></footer></aside>;
 }
 function TransactionsPanel({ tab, selectedId, onSelect }) {
   const [query, setQuery] = useState('');
@@ -48,7 +48,7 @@ function TransactionsPanel({ tab, selectedId, onSelect }) {
     <dl className="stats"><div><dt>Всего операций</dt><dd>{transactions.length}</dd></div><div><dt>Approved</dt><dd className="approved-text">{transactions.filter(t => t.status === 'approved').length}</dd></div><div><dt>Banned</dt><dd className="banned-text">{transactions.filter(t => t.status === 'banned').length}</dd></div></dl>
     <div className="toolbar"><label className="search"><SearchIcon/><span className="sr-only">Поиск по номеру операции или заказа</span><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Поиск по номеру операции или заказа"/></label><label className="status-select"><span className="sr-only">Статус операции</span><select value={status} onChange={event => setStatus(event.target.value)}><option value="">Все статусы</option>{Object.entries(statuses).map(([id, item]) => <option key={id} value={id}>{item.title}</option>)}</select></label><button className="export-button" onClick={exportCsv}><span aria-hidden="true">↓</span> Экспорт CSV</button></div>
     <div className="table-card"><div className="table-scroll"><table><caption className="sr-only">{tab.title}: транзакции</caption><thead><tr><th scope="col">Номер операции</th><th scope="col">Заказ</th><th scope="col">Сумма</th><th scope="col">Статус</th><th scope="col"><span className="sr-only">Действие</span></th></tr></thead><tbody>{items.map(item => <tr key={item.id} onClick={() => onSelect(item.id)} className={item.id === selectedId ? 'selected' : ''}><td><button className="operation-button" onClick={() => onSelect(item.id)} aria-label={'Открыть операцию № ' + item.id} aria-pressed={item.id === selectedId}>№ {item.id}</button></td><td className="muted">{item.orderId}</td><td className="amount">{money(item.amount)}</td><td><StatusBadge status={item.status}/></td><td><button className="row-arrow" onClick={() => onSelect(item.id)} aria-label={'Детали операции № ' + item.id}>›</button></td></tr>)}</tbody></table></div>{!items.length && <p className="empty" role="status">Операции не найдены. Измените поиск или фильтр.</p>}<div className="table-footer" aria-live="polite"><span>Показано {items.length} из {transactions.filter(item => !tab.status || item.status === tab.status).length} операций</span><span>{items.length ? '1 / 1' : '0 / 0'}</span></div></div>
-    <div className="updated"><span>Обновлено только что</span><span className="system-dot" aria-hidden="true"/></div>
+    <div className="updated"><span>Статические демонстрационные данные</span><span className="system-dot" aria-hidden="true"/></div>
   </section>;
 }
 
@@ -153,7 +153,7 @@ function Details({
     <div className="order-label">Заказ</div><button className="order-link" onClick={() => onOpenOrder(item)}>№ {item.orderId}<span aria-hidden="true">↗</span></button>
     {item.product && <article className="product-card"><ProductIllustration/><div><p className="product-category">{item.product.category}</p><h3>{item.product.title}</h3><p className="product-caption">Товар в заказе № {item.orderId}</p><button className="text-link" onClick={() => onOpenOrder(item, 'product')}>Открыть карточку товара <span aria-hidden="true">↗</span></button></div></article>}
     <div className="customer"><p className="eyebrow">ПОЛЬЗОВАТЕЛЬ</p>{item.customer ? <div className="customer-row"><span className="avatar">{item.initials}</span><div><strong>{item.customer}</strong><small>Покупатель</small></div></div> : <p className="missing">Данные пользователя не указаны</p>}</div>
-    <dl className="processing"><dt>Время обработки</dt><dd>{item.processingTime || 'Не указано'}</dd></dl>
+    <dl className="processing"><dt>Время обработки</dt><dd>Не измерялось</dd></dl>
     <OperationCheck
   operationId={item.id}
   scenarioId={scenarioId}
@@ -202,7 +202,7 @@ function App() {
       <Header />
       <Sidebar activeId={activeId} onChange={changeTab} />
 
-      <div style={{ padding: '16px 24px' }}>
+      <div className="scenario-toolbar">
         <label>
           Демо: сценарий проверки{' '}
           <select value={scenarioId} onChange={changeScenario}>
