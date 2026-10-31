@@ -1,0 +1,6 @@
+GET /healthz: HTTP 200 {"service": "antifraud", "status": "ok"}
+GET /readyz: HTTP 503 {"reason": "model_not_implemented", "status": "not_ready"}
+GET /api/v1/metrics: HTTP 503 {"metrics": null, "reason": "evaluation_not_run", "status": "not_available"}
+GET /: HTTP 200, expected page content present
+GET /docs: HTTP 200, expected page content present
+PASS: API is alive; model and evaluation are explicitly absent.

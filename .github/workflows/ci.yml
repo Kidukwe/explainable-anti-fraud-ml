@@ -22,8 +22,20 @@ jobs:
       - run: docker compose config --quiet
       - name: Container smoke test
         run: |
+          set -o pipefail
           docker compose up --build --wait --wait-timeout 120
-          curl --fail http://127.0.0.1:8000/healthz
+          uv run --frozen python scripts/smoke.py | tee smoke.txt
+      - name: Collect container logs
+        if: always()
+        run: docker compose logs --no-color > container.txt 2>&1
+      - name: Upload smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: s1-smoke-${{ github.sha }}
+          path: |
+            smoke.txt
+            container.txt
       - name: Stop containers
         if: always()
         run: docker compose down
