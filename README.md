@@ -38,6 +38,26 @@ uv run uvicorn backend.app:app --host 127.0.0.1 --port 8000
 Откройте [dashboard](http://127.0.0.1:8000/) и [Swagger](http://127.0.0.1:8000/docs).
 Если uv не находит Python 3.12, установите его командой `uv python install 3.12`.
 
+### Smoke: увидеть отсутствие модели
+
+Оставьте сервер работающим. Во втором терминале из корня репозитория выполните:
+
+```bash
+uv run --frozen python scripts/smoke.py
+```
+
+Успех — строка `PASS: API is alive; model and evaluation are explicitly absent.`
+Скрипт проверяет HTTP-статусы и JSON, доступность dashboard и Swagger;
+при неожиданном ответе или недоступном сервере завершается с ненулевым кодом.
+Он предназначен для текущего bootstrap: после реализации модели ожидания нужно обновить.
+
+В браузере откройте dashboard и нажмите «Обновить». Ожидается:
+API — «Работает», модель — «Ещё не реализована», качество —
+«Оценка ещё не выполнена. Метрики отсутствуют.»
+HTTP 503 на `/readyz` и `/api/v1/metrics` здесь ожидаемы: сервис запущен,
+но обученной модели и результатов оценки нет. Проверять их через `curl --fail`
+как успешные ответы нельзя. Остановка локального сервера — `Ctrl+C`.
+
 Для ML-исследований доступны отдельные extras:
 
 ```bash
@@ -57,6 +77,7 @@ uv run pytest
 docker compose config --quiet
 docker compose up --build --wait
 curl --fail http://127.0.0.1:8000/healthz
+uv run --frozen python scripts/smoke.py
 docker compose down
 ```
 
@@ -64,6 +85,10 @@ Compose читает APP_PORT (по умолчанию 8000). Для друго�
 .env.example в .env. На хосте порт привязан к 127.0.0.1. Контейнер работает
 от непривилегированного пользователя; данные и модели не входят в build context.
 Проверка Docker требует запущенного Engine. 503 на readiness/метриках сейчас ожидаемы.
+При изменённом APP_PORT передайте smoke адрес, например
+`uv run --frozen python scripts/smoke.py --base-url http://127.0.0.1:8001`.
+CI выполняет тот же smoke внутри контейнерного сценария и сохраняет ответы API и
+логи контейнера в artifact `s1-smoke-<SHA>`; результаты Ruff/pytest — в job `quality`.
 
 ## Архитектура
 
@@ -86,6 +111,10 @@ ML extras: pandas, NumPy, scikit-learn, CatBoost; XAI: SHAP; notebooks: Jupyter.
 Релизы отмечаются тегами; develop и постоянных веток направлений нет.
 [Правила PR](CONTRIBUTING.md) и [ответственность / DoD](docs/team-workflow.md).
 Актуальные назначения и спринт ведёт организатор; этот README не дублирует Kanban.
+
+Для S1: ветка `feature/S1-bootstrap-verification` → PR в `main`;
+независимое review и повторный запуск выполняет Алина (@lina596).
+[Отчёт S1, фактические логи и чек-лист приёмки](docs/s1-verification.md).
 
 ## Ограничения
 

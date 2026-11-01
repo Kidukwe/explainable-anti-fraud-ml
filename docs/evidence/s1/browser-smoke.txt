@@ -1,0 +1,16 @@
+S1 browser smoke, 2026-10-21
+URL: http://127.0.0.1:8000/
+Browser: ChatGPT in-app browser
+Title: Anti-Fraud · среда разработки
+
+Rendered accessibility text after page load:
+API: Работает
+Модель: Ещё не реализована
+Качество модели: Оценка ещё не выполнена. Метрики отсутствуют.
+
+Clicked the visible «Обновить» button; observed updated rendered text:
+Работает
+Ещё не реализована
+Оценка ещё не выполнена. Метрики отсутствуют.
+
+PASS: observed via browser automation. Independent replay by Алина is pending.
