@@ -1,0 +1,102 @@
+Дата: 2026-10-21 (Europe/Kiev). Локальная инвентаризация и функциональный smoke; не benchmark.
+$ git rev-parse HEAD
+ff2ae3fa6ce7a13e81536eedaea86184d5d4582f
+exit_code=0
+
+$ sw_vers
+ProductName:		macOS
+ProductVersion:		27.0.1
+BuildVersion:		26A434
+exit_code=0
+
+$ sysctl -n machdep.cpu.brand_string hw.physicalcpu hw.logicalcpu hw.memsize
+Apple M1
+8
+8
+8589934592
+exit_code=0
+
+$ df -k .
+Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on
+/dev/disk3s1   239362496 137569656  74001380    66% 1781839 740013800    0%   /System/Volumes/Data
+exit_code=0
+
+$ system_profiler SPDisplaysDataType
+Graphics/Displays:
+
+    Apple M1:
+
+      Chipset Model: Apple M1
+      Type: GPU
+      Bus: Built-In
+      Total Number of Cores: 7
+      Vendor: Apple (0x106b)
+      Metal Support: Metal 4
+      Displays:
+        Color LCD:
+          Display Type: Built-In Retina LCD
+          Resolution: 2560 x 1600 Retina
+          Main Display: Yes
+          Mirror: Off
+          Online: Yes
+          Automatically Adjust Brightness: Yes
+          Connection Type: Internal
+exit_code=0
+
+$ /bin/zsh -c for tool in docker ollama llama-cli llama-bench llama-server uv; do command -v "$tool" || printf "%s: not found in PATH\n" "$tool"; done
+docker: not found in PATH
+ollama: not found in PATH
+llama-cli: not found in PATH
+llama-bench: not found in PATH
+llama-server: not found in PATH
+uv: not found in PATH
+exit_code=0
+
+$ /Users/hazdeen/Documents/ChatGPT/Озон Антифрод/explainable-anti-fraud-ml/.venv/bin/python --version
+Python 3.12.7
+exit_code=0
+
+$ /tmp/s1-bootstrap-tools/bin/uv --version
+uv 0.10.4 (079e3fd05 2026-02-17)
+exit_code=0
+
+Installed distribution metadata (not an import/runtime test):
+fastapi: 0.143.1
+uvicorn: 0.54.0
+numpy: not installed in project .venv
+pandas: not installed in project .venv
+scikit-learn: not installed in project .venv
+catboost: not installed in project .venv
+shap: not installed in project .venv
+llama-cpp-python: not installed in project .venv
+mlx-lm: not installed in project .venv
+
+$ /Users/hazdeen/Documents/ChatGPT/Озон Антифрод/explainable-anti-fraud-ml/.venv/bin/python -m uvicorn backend.app:app --fd 4
+Inherited listener: 127.0.0.1:54270; no external interface.
+$ /Users/hazdeen/Documents/ChatGPT/Озон Антифрод/explainable-anti-fraud-ml/.venv/bin/python scripts/smoke.py --base-url http://127.0.0.1:54270
+GET /healthz: HTTP 200 {"service": "antifraud", "status": "ok"}
+GET /readyz: HTTP 503 {"reason": "model_not_implemented", "status": "not_ready"}
+GET /api/v1/metrics: HTTP 503 {"metrics": null, "reason": "evaluation_not_run", "status": "not_available"}
+GET /: HTTP 200, expected page content present
+GET /docs: HTTP 200, expected page content present
+PASS: API is alive; model and evaluation are explicitly absent.
+exit_code=0
+
+Server stopped after smoke.
+INFO:     Started server process [35949]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on socket ('127.0.0.1', 54270) (Press CTRL+C to quit)
+INFO:     127.0.0.1:54271 - "GET /healthz HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54272 - "GET /healthz HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54273 - "GET /readyz HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54274 - "GET /api/v1/metrics HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54275 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54276 - "GET /docs HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [35949]
+
+Latency, throughput, peak RAM/VRAM, model loading: НЕ ИЗМЕРЕНО.
+No model downloads, installs, paid calls, deployment or remote mutations performed.
