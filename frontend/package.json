@@ -7,9 +7,10 @@
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "vitest run",
+    "test": "vitest run && node scripts/check-modes.mjs",
     "test:ui": "vitest run",
-    "test:ui:watch": "vitest"
+    "test:ui:watch": "vitest",
+    "test:modes": "node scripts/check-modes.mjs"
   },
   "dependencies": {
     "react": "^19.0.0",
@@ -23,4 +24,3 @@
     "vitest": "^3.2.7"
   }
 }
-
