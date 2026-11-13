@@ -1,12 +1,18 @@
+import json
+import re
+from pathlib import Path
+
 import pytest
 from pydantic import ValidationError
 
 from backend.schemas import (
+    ChecksCompleted,
     ExplanationResult,
     OperationsResponse,
     OperationSummary,
     PredictionRequest,
     PredictionResponse,
+    ShapFeature,
     ShapReady,
 )
 
@@ -30,7 +36,14 @@ def test_shap_rejects_wrong_feature_count():
             output_scale="raw_margin",
             base_value=-2.0,
             output_value=-1.3,
-            features=[{"name": "TX_AMOUNT", "value": 200.0, "contribution": 0.5}],
+            features=[
+                {
+                    "name": "TX_AMOUNT",
+                    "raw_value": 200.0,
+                    "transformed_value": 200.0,
+                    "contribution": 0.5,
+                }
+            ],
             top_k=2,
             remaining_contribution=0.2,
             template_text="Условное объяснение для теста",
@@ -48,7 +61,14 @@ def valid_shap() -> ShapReady:
         output_scale="raw_margin",
         base_value=-2.0,
         output_value=-1.3,
-        features=[{"name": "TX_AMOUNT", "value": 200.0, "contribution": 0.5}],
+        features=[
+            {
+                "name": "TX_AMOUNT",
+                "raw_value": 200.0,
+                "transformed_value": 200.0,
+                "contribution": 0.5,
+            }
+        ],
         top_k=1,
         remaining_contribution=0.2,
         template_text="Условное объяснение для теста",
@@ -98,15 +118,14 @@ def test_explanation_rejects_mismatched_generation_id(valid_shap):
             },
             checks={
                 "status": "passed",
-                "checker_version": "test-checker-v1",
+                "checker_version": "v1",
                 "generation_id": "gen-other",
                 "explanation_id": "exp-test-001",
                 "items": [
-                    {
-                        "code": "contribution_direction",
-                        "status": "passed",
-                        "violations": [],
-                    }
+                    {"code": "top_k_coverage", "status": "passed", "violations": []},
+                    {"code": "contribution_direction", "status": "passed", "violations": []},
+                    {"code": "numeric_consistency", "status": "passed", "violations": []},
+                    {"code": "no_new_factors", "status": "passed", "violations": []},
                 ],
             },
         )
@@ -125,15 +144,14 @@ def test_explanation_accepts_matching_ids(valid_shap):
         },
         checks={
             "status": "passed",
-            "checker_version": "test-checker-v1",
+            "checker_version": "v1",
             "generation_id": "gen-test-001",
             "explanation_id": "exp-test-001",
             "items": [
-                {
-                    "code": "contribution_direction",
-                    "status": "passed",
-                    "violations": [],
-                }
+                {"code": "top_k_coverage", "status": "passed", "violations": []},
+                {"code": "contribution_direction", "status": "passed", "violations": []},
+                {"code": "numeric_consistency", "status": "passed", "violations": []},
+                {"code": "no_new_factors", "status": "passed", "violations": []},
             ],
         },
     )
@@ -230,3 +248,51 @@ def test_operation_event_time(event_time):
 def test_operations_response_accepts_empty_list():
     result = OperationsResponse(dataset_version="demo-v1", items=[])
     assert result.items == []
+
+
+def test_checks_reject_incomplete_passed_set():
+    with pytest.raises(
+        ValidationError,
+        match="полный обязательный набор",
+    ):
+        ChecksCompleted(
+            status="passed",
+            checker_version="v1",
+            generation_id="gen-test-001",
+            explanation_id="exp-test-001",
+            items=[
+                {
+                    "code": "contribution_direction",
+                    "status": "passed",
+                    "violations": [],
+                }
+            ],
+        )
+
+
+def test_shap_feature_preserves_missing_raw_value():
+    feature = ShapFeature(
+        name="TX_AMOUNT",
+        raw_value=None,
+        transformed_value=100.0,
+        contribution=0.5,
+    )
+
+    payload = feature.model_dump()
+
+    assert payload["raw_value"] is None
+    assert payload["transformed_value"] == 100.0
+
+
+def test_contract_json_examples_are_valid():
+    path = Path(__file__).resolve().parents[1] / "docs" / "contracts.md"
+    document = path.read_text(encoding="utf-8")
+    blocks = re.findall(r"```json\s*\n(.*?)\n```", document, re.DOTALL)
+
+    assert blocks, "В контракте не найдены JSON-примеры"
+
+    for number, block in enumerate(blocks, start=1):
+        try:
+            json.loads(block)
+        except json.JSONDecodeError as error:
+            pytest.fail(f"JSON-пример №{number} некорректен: {error}")

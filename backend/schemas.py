@@ -10,6 +10,15 @@ from pydantic import (
     model_validator,
 )
 
+REQUIRED_CHECKS = {
+    "v1": {
+        "top_k_coverage",
+        "contribution_direction",
+        "numeric_consistency",
+        "no_new_factors",
+    }
+}
+
 
 class PredictionRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -22,7 +31,8 @@ class PredictionRequest(BaseModel):
 
 class ShapFeature(BaseModel):
     name: str
-    value: float = Field(allow_inf_nan=False)
+    raw_value: float | None = Field(allow_inf_nan=False)
+    transformed_value: float = Field(allow_inf_nan=False)
     contribution: float = Field(allow_inf_nan=False)
 
 
@@ -105,6 +115,21 @@ class ChecksCompleted(BaseModel):
 
     @model_validator(mode="after")
     def validate_items(self) -> "ChecksCompleted":
+        if self.checker_version not in REQUIRED_CHECKS:
+            raise ValueError("Неизвестная версия набора проверок")
+
+        required = REQUIRED_CHECKS[self.checker_version]
+        codes = [item.code for item in self.items]
+
+        if len(codes) != len(set(codes)):
+            raise ValueError("Коды проверок не должны повторяться")
+
+        if not set(codes).issubset(required):
+            raise ValueError("Неизвестный код проверки для этой версии")
+
+        if self.status == "passed" and set(codes) != required:
+            raise ValueError("Для passed требуется полный обязательный набор проверок")
+
         has_rejected = any(item.status == "rejected" for item in self.items)
 
         if self.status == "passed" and has_rejected:
