@@ -1,7 +1,14 @@
 import pytest
 from pydantic import ValidationError
 
-from backend.schemas import ExplanationResult, PredictionRequest, PredictionResponse, ShapReady
+from backend.schemas import (
+    ExplanationResult,
+    OperationsResponse,
+    OperationSummary,
+    PredictionRequest,
+    PredictionResponse,
+    ShapReady,
+)
 
 
 def test_prediction_request_rejects_extra_fields():
@@ -192,3 +199,34 @@ def test_prediction_request_rejects_invalid_id(operation_id):
 def test_prediction_request_requires_operation_id():
     with pytest.raises(ValidationError):
         PredictionRequest()
+
+
+@pytest.mark.parametrize(
+    "event_time",
+    [
+        "2018-04-01T10:00:00",
+        "2018-02-30T10:00:00",
+        "2018-04-01T10:00:00Z",
+        "привет",
+    ],
+)
+def test_operation_event_time(event_time):
+    data = {
+        "operation_id": "456",
+        "event_time": event_time,
+        "amount": 200.0,
+        "customer_id": "596",
+        "terminal_id": "3156",
+    }
+
+    if event_time == "2018-04-01T10:00:00":
+        result = OperationSummary(**data)
+        assert result.event_time == event_time
+    else:
+        with pytest.raises(ValidationError, match="event_time"):
+            OperationSummary(**data)
+
+
+def test_operations_response_accepts_empty_list():
+    result = OperationsResponse(dataset_version="demo-v1", items=[])
+    assert result.items == []

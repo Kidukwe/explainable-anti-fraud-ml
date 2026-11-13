@@ -1,6 +1,14 @@
+from datetime import datetime
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StringConstraints,
+    field_validator,
+    model_validator,
+)
 
 
 class PredictionRequest(BaseModel):
@@ -139,6 +147,40 @@ class ExplanationResult(BaseModel):
                 if self.checks.explanation_id != self.llm.explanation_id:
                     raise ValueError("explanation_id Checks не совпадает с explanation_id LLM")
         return self
+
+
+class OperationSummary(BaseModel):
+    operation_id: Annotated[str, StringConstraints(strip_whitespace=True, strict=True)] = Field(
+        min_length=1
+    )
+    event_time: str
+    amount: float = Field(ge=0, allow_inf_nan=False)
+    customer_id: Annotated[str, StringConstraints(strip_whitespace=True, strict=True)] = Field(
+        min_length=1
+    )
+    terminal_id: Annotated[str, StringConstraints(strip_whitespace=True, strict=True)] = Field(
+        min_length=1
+    )
+
+    @field_validator("event_time")
+    @classmethod
+    def validate_event_time(cls, value: str) -> str:
+        message = "event_time должен иметь формат YYYY-MM-DDTHH:MM:SS"
+
+        try:
+            parsed = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S")
+        except ValueError as error:
+            raise ValueError(message) from error
+
+        if parsed.isoformat(timespec="seconds") != value:
+            raise ValueError(message)
+
+        return value
+
+
+class OperationsResponse(BaseModel):
+    dataset_version: str
+    items: list[OperationSummary]
 
 
 class PredictionResponse(BaseModel):
