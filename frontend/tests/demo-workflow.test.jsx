@@ -10,9 +10,9 @@ it('opens the first operation and retains the card while changing its scenario',
   expect(screen.queryByLabelText('Карточка операции № 10001')).toBeNull();
   fireEvent.click(screen.getByRole('button', { name: 'Открыть операцию № 10001' }));
   const card = screen.getByLabelText('Карточка операции № 10001');
-  expect(within(card).getByText('Иванов Иван Иванович')).not.toBeNull();
-  expect(within(card).getByText('ИИ')).not.toBeNull();
-  expect(within(card).getByText('Не измерялось')).not.toBeNull();
+  expect(within(card).getByText('42')).not.toBeNull();
+  expect(within(card).getByText('17')).not.toBeNull();
+  expect(card.textContent).not.toContain('₽');
   fireEvent.change(screen.getByRole('combobox', { name: /Демо: сценарий проверки/ }), { target: { value: 'modelUnavailable' } });
   expect(screen.getByLabelText('Карточка операции № 10001')).not.toBeNull();
   expect(within(card).getByText('Проверяем операцию…')).not.toBeNull();
@@ -23,18 +23,17 @@ it('shows an empty queue and zero sidebar counters in the empty scenario', () =>
   render(<DemoApp/>);
   fireEvent.click(screen.getByRole('button', { name: 'Открыть операцию № 10001' }));
   fireEvent.change(screen.getByRole('combobox', { name: /Демо: сценарий проверки/ }), { target: { value: 'empty' } });
-  expect(screen.getByText('В очереди нет операций')).not.toBeNull();
+  expect(screen.getByText('Операций нет')).not.toBeNull();
   expect(screen.queryByLabelText('Карточка операции № 10001')).toBeNull();
   for (const tab of screen.getAllByRole('tab')) {
     expect(within(tab).getByText('0')).not.toBeNull();
   }
 });
 
-it('uses correct initials and a neutral placeholder for products without an image', () => {
+it('opens another operation and shows its own identifiers', () => {
   render(<DemoApp/>);
   fireEvent.click(screen.getByRole('button', { name: 'Открыть операцию № 10000' }));
   const card = screen.getByLabelText('Карточка операции № 10000');
-  expect(within(card).getByText('ПП')).not.toBeNull();
-  expect(within(card).getByRole('img', { name: 'Изображение товара отсутствует' })).not.toBeNull();
-  expect(within(card).queryByRole('img', { name: 'Иллюстрация аэрогриля' })).toBeNull();
+  expect(within(card).getByText('15')).not.toBeNull();
+  expect(within(card).getByText('23')).not.toBeNull();
 });

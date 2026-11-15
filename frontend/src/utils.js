@@ -1,14 +1,17 @@
 export const number = new Intl.NumberFormat('ru-RU');
-export const money = value => number.format(value) + ' ₽';
-export function filterTransactions(items, tabStatus, status, query) {
-  const search = query.trim().toLocaleLowerCase('ru-RU').replace(/^№\s*/, '');
-  return items.filter(item => (!tabStatus || item.status === tabStatus)
-    && (!status || item.status === status)
-    && (!search || item.id.includes(search) || item.orderId.includes(search)));
-}
-export function toCsv(items) {
-  const cell = value => '"' + String(value).replaceAll('"', '""') + '"';
-  return '\uFEFF' + [['Номер операции', 'Заказ', 'Сумма, ₽', 'Статус'], ...items.map(item => [item.id, item.orderId, item.amount, item.status])]
-    .map(row => row.map(cell).join(';')).join('\r\n');
+
+export function filterTransactions(items, query) {
+  const search = query.trim().toLowerCase().replace(/^№\s*/, '');
+  return items.filter(item =>
+    item.operation_id.toLowerCase().includes(search),
+  );
 }
 
+export function toCsv(items) {
+  const escape = value => '"' + String(value ?? '').replaceAll('"', '""') + '"';
+  const rows = [
+    ['Номер операции', 'Время операции', 'Сумма', 'ID клиента', 'ID терминала'],
+    ...items.map(item => [item.operation_id, item.event_time, item.amount, item.customer_id, item.terminal_id]),
+  ];
+  return '\uFEFF' + rows.map(row => row.map(escape).join(';')).join('\r\n');
+}

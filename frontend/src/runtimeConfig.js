@@ -14,42 +14,59 @@ export async function loadConfig({ signal } = {}) {
   return validateConfig(await response.json());
 }
 
-// Временный адаптер текущего UI.
-// Формат нужно сверить с владельцем API перед реальной интеграцией.
 export async function loadOperations(url, { signal } = {}) {
-  const response = await fetch(url, {
-    signal,
-    cache: 'no-store',
-  });
+  const response = await fetch(url, { signal, cache: 'no-store' });
+  if (!response.ok) throw new Error('API операций недоступен');
 
-  if (!response.ok) {
-    throw new Error('API операций недоступен');
-  }
-
-  const payload = await response.json();
-
-  if (!payload || !Array.isArray(payload.operations)) {
-    throw new Error('Формат ответа API не поддерживается');
+  const queue = await response.json();
+  if (typeof queue?.dataset_version !== 'string' || !queue.dataset_version.trim()
+    || !Array.isArray(queue.items)) {
+    throw new Error('Неподдерживаемый формат очереди');
   }
 
   const ids = new Set();
+  const items = queue.items.map(item => {
+    const { operation_id, event_time, amount, customer_id, terminal_id } = item ?? {};
 
-  for (const item of payload.operations) {
-    if (
-      !item ||
-      typeof item.id !== 'string' ||
-      !item.id ||
-      ids.has(item.id) ||
-      typeof item.orderId !== 'string' ||
-      typeof item.amount !== 'number' ||
-      !Number.isFinite(item.amount) ||
-      !['approved', 'banned', 'consideration'].includes(item.status)
-    ) {
-      throw new Error('Некорректная операция в ответе API');
+    if (![operation_id, customer_id, terminal_id].every(
+      value => typeof value === 'string' && value.trim().length > 0,
+    )) {
+      throw new Error('Некорректный идентификатор операции, клиента или терминала');
     }
 
-    ids.add(item.id);
+    if (!Number.isFinite(amount) || amount < 0) {
+      throw new Error('Некорректная сумма операции');
+    }
+
+    if (!isValidEventTime(event_time)) {
+      throw new Error('Некорректное время операции');
+    }
+
+    const operationId = operation_id.trim();
+    if (ids.has(operationId)) {
+      throw new Error('Повторяющийся идентификатор операции');
+    }
+    ids.add(operationId);
+
+    return {
+      ...item,
+      operation_id: operationId,
+      customer_id: customer_id.trim(),
+      terminal_id: terminal_id.trim(),
+    };
+  });
+
+  return { ...queue, items };
+}
+
+function isValidEventTime(value) {
+  if (typeof value !== 'string'
+    || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(value)
+    || value.startsWith('0000-')) {
+    return false;
   }
 
-  return payload.operations;
+  const date = new Date(`${value}Z`);
+  return Number.isFinite(date.getTime())
+    && date.toISOString() === `${value}.000Z`;
 }

@@ -16,6 +16,7 @@ import {
 } from 'vitest';
 
 import OperationCheck from '../src/OperationCheck.jsx';
+import { mockPrediction } from '../src/mockPrediction.js';
 import { mockScenarios } from '../src/mockScenarios.js';
 
 afterEach(cleanup);
@@ -29,7 +30,7 @@ function answerFor(operationId, scenarioId) {
     throw new Error(`Нет сценария: ${scenarioId}`);
   }
 
-  return { ...scenario, operationId };
+  return { ...scenario, operationId, result: scenario.result ? mockPrediction(operationId, scenarioId) : null };
 }
 
 function deferred() {
@@ -123,7 +124,8 @@ describe('Состояния проверки операции', () => {
       ).not.toBeNull();
     }
 
-    expect(screen.getByText('Не предоставлено')).not.toBeNull();
+    expect(screen.getByText('0.7')).not.toBeNull();
+    expect(screen.getByText('demo-model-v1')).not.toBeNull();
 
     expect(
       screen.getByText(/Тестовый текст для проверки отображения/),
@@ -136,9 +138,10 @@ describe('Состояния проверки операции', () => {
 
   it('явно сообщает об отсутствии объяснения', async () => {
     showScenario('noExplanation');
+    await screen.findByText('Проверки не выполнялись');
 
     expect(
-      await screen.findByText('Текстовое объяснение отсутствует'),
+      await screen.findByText('Демо: текстовое объяснение недоступно.'),
     ).not.toBeNull();
 
     expect(
@@ -148,6 +151,8 @@ describe('Состояния проверки операции', () => {
 
   it('показывает отказ проверки без обвинения покупателя', async () => {
     showScenario('checkRejected');
+    await screen.findByText(/Шаблон SHAP:/);
+    expect(screen.queryByText('Демонстрационный отклонённый текст.')).toBeNull();
 
     expect(
       await screen.findByText(/Демонстрационный отказ проверки/),
@@ -158,6 +163,13 @@ describe('Состояния проверки операции', () => {
         /Отказ проверки ответа не означает блокировку операции/,
       ),
     ).not.toBeNull();
+  });
+
+  it('показывает шаблон SHAP при ошибке проверки текста', async () => {
+    showScenario('checkFailed');
+    await screen.findByText('Ошибка проверки текста');
+    expect(screen.getByText(/Шаблон SHAP:/)).not.toBeNull();
+    expect(screen.queryByText(/Тестовый текст для проверки отображения/)).toBeNull();
   });
 
   it('обрабатывает отклонённый запрос', async () => {
@@ -260,10 +272,7 @@ describe('Защита от старого результата', () => {
     );
 
     const answerB = answerFor('10000', 'ready');
-    answerB.result = {
-      ...answerB.result,
-      explanation: 'Mock: ответ операции Б',
-    };
+    answerB.result.explanation.llm.text = 'Mock: ответ операции Б';
 
     await act(async () => {
       pendingB.resolve(answerB);
@@ -273,10 +282,7 @@ describe('Защита от старого результата', () => {
       .not.toBeNull();
 
     const answerA = answerFor('10001', 'ready');
-    answerA.result = {
-      ...answerA.result,
-      explanation: 'Mock: устаревший ответ операции А',
-    };
+    answerA.result.explanation.llm.text = 'Mock: устаревший ответ операции А';
 
     await act(async () => {
       pendingA.resolve(answerA);
@@ -341,7 +347,7 @@ describe('Защита от старого результата', () => {
       newRequest.resolve(answerFor('10001', 'noExplanation'));
     });
 
-    await screen.findByText('Текстовое объяснение отсутствует');
+    await screen.findByText('Демо: текстовое объяснение недоступно.');
 
     await act(async () => {
       oldRequest.resolve(answerFor('10001', 'ready'));

@@ -1,12 +1,9 @@
-// Только демонстрационные значения. API и реальная модель не подключены.
-export const statuses = {
-  approved: { title: 'Approved', message: 'Approved', icon: '✓', result: 'Операция прошла проверку и не требует дополнительного рассмотрения.' },
-  banned: { title: 'Banned', message: 'Banned', icon: '×' },
-  consideration: { title: 'Consideration', message: 'Consideration', icon: '…' }
+// Условные данные для сверки интерфейса с черновиком MLAF-5.
+export const demoQueue = {
+  dataset_version: 'demo-v1',
+  items: [
+    { operation_id: '10001', event_time: '2026-11-13T09:00:00', amount: 24990, customer_id: '42', terminal_id: '17' },
+    { operation_id: '10000', event_time: '2026-11-13T08:45:00', amount: 900, customer_id: '15', terminal_id: '23' },
+    { operation_id: '9999', event_time: '2026-11-13T08:30:00', amount: 100585, customer_id: '61', terminal_id: '17' },
+  ],
 };
-
-export const transactions = [
-  { id: '10001', orderId: '1431', amount: 24990, status: 'approved', customer: 'Иванов Иван Иванович', initials: 'ИИ', product: { title: 'Аэрогриль', category: 'ТЕХНИКА ДЛЯ КУХНИ' } },
-  { id: '10000', orderId: '1918', amount: 900, status: 'banned', customer: 'Петров Петр Петрович', initials: 'ПП', product: { title: 'Корм для кота', category: 'ЖИВОТНЫЕ' }  },
-  { id: '9999', orderId: '3621', amount: 100585, status: 'consideration', customer: 'Сергеев Александр Сильвесторович', initials: 'СА', product: { title: 'Iphone 18 pro 256 гб', category: 'ТЕХНИКА' } }
-];

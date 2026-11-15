@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { mockScenarios } from './mockScenarios.js';
+import { mockPrediction } from './mockPrediction.js';
 
 export async function requestMockCheck(operationId, scenarioId) {
   const scenario = mockScenarios.find(item => item.id === scenarioId);
@@ -14,6 +15,7 @@ export async function requestMockCheck(operationId, scenarioId) {
   return {
     ...scenario,
     operationId,
+    result: scenario.result ? mockPrediction(operationId, scenarioId) : null,
   };
 }
 
@@ -35,7 +37,8 @@ export default function OperationCheck({
         const answer = await request(operationId, scenarioId);
 
         // Игнорируем ответ старого запроса или другой операции.
-        if (!active || answer.operationId !== operationId) {
+        if (!active || answer.operationId !== operationId
+          || (answer.result && answer.result.operation_id !== operationId)) {
           return;
         }
 
@@ -98,10 +101,10 @@ export default function OperationCheck({
       <section className="analysis-result" aria-label="Результат проверки">
         <div role="alert">
           <strong>{answer.message}</strong>
-          <p>{answer.error?.message}</p>
+          <p>{answer.error?.error?.message ?? answer.error?.message}</p>
         </div>
 
-        {answer.error?.canRetry && (
+        {(answer.canRetry ?? answer.error?.canRetry) && (
           <button
             type="button"
             onClick={() => setAttempt(value => value + 1)}
@@ -118,17 +121,15 @@ export default function OperationCheck({
     typeof result?.score === 'number' &&
     Number.isFinite(result.score);
 
-  const hasShap =
-    result?.shap != null &&
-    (!Array.isArray(result.shap) || result.shap.length > 0);
-
-  const hasExplanation =
-    typeof result?.explanation === 'string' &&
-    result.explanation.trim().length > 0;
+  const { shap, llm, checks } = result?.explanation ?? {};
+  const hasShap = shap?.status === 'ready';
+  const hasExplanation = llm?.status === 'ready' && checks?.status === 'passed';
 
   const checkLabels = {
-    notRun: 'Проверки не выполнялись',
+    passed: 'Текст прошёл проверку',
+    not_run: 'Проверки не выполнялись',
     rejected: 'Ответ не прошёл проверку',
+    failed: 'Ошибка проверки текста',
   };
 
   return (
@@ -144,6 +145,12 @@ export default function OperationCheck({
       <section className="analysis-block">
         <h4>Score модели</h4>
         <p>{hasScore ? String(result.score) : 'Не предоставлено'}</p>
+        <dl>
+          <dt>Порог</dt><dd>{result?.threshold ?? 'Не предоставлен'}</dd>
+          <dt>Версия модели</dt><dd>{result?.model_version ?? 'Не указана'}</dd>
+          <dt>Версия схемы признаков</dt><dd>{result?.feature_schema_version ?? 'Не указана'}</dd>
+          <dt>Версия набора данных</dt><dd>{result?.dataset_version ?? 'Не указана'}</dd>
+        </dl>
         <small>
           Значение не обозначается вероятностью без определения
           шкалы в контракте.
@@ -153,9 +160,14 @@ export default function OperationCheck({
       <section className="analysis-block">
         <h4>SHAP — вклады признаков</h4>
         {hasShap ? (
-          <pre>{JSON.stringify(result.shap, null, 2)}</pre>
+          <>
+            <p>Версия метода: {shap.method_version}</p>
+            <ul>{shap.features.map(({ name, value, contribution }) => (
+              <li key={name}>{name}: {value}, вклад {contribution}</li>
+            ))}</ul>
+          </>
         ) : (
-          <p>SHAP-объяснение отсутствует</p>
+          <p>{shap?.reason ?? 'SHAP-объяснение отсутствует'}</p>
         )}
       </section>
 
@@ -163,26 +175,33 @@ export default function OperationCheck({
         <h4>LLM — текстовое объяснение</h4>
         <p>
           {hasExplanation
-            ? result.explanation
-            : 'Текстовое объяснение отсутствует'}
+            ? llm.text
+            : (llm?.reason ?? 'Текстовое объяснение отсутствует')}
         </p>
-        <small>Демонстрационные данные, не ответ реальной LLM.</small>
+        {!hasExplanation && hasShap && (
+          <p>Шаблон SHAP: {shap.template_text}</p>
+        )}
+        {hasExplanation && <small>Версии LLM и промпта: {llm.model_version}, {llm.prompt_version}</small>}
       </section>
 
       <section className="analysis-block">
         <h4>Checks — проверка ответа</h4>
         <p>
-          {result?.checks
-            ? checkLabels[result.checks.status] ??
+          {checks
+            ? checkLabels[checks.status] ??
               'Статус проверки не распознан'
             : 'Результат проверок не предоставлен'}
         </p>
 
-        {result?.checks?.reason && (
-          <p className="check-reason">{result.checks.reason}</p>
+        {checks?.checker_version && <p>Версия проверки: {checks.checker_version}</p>}
+        {checks?.reason && (
+          <p className="check-reason">{checks.reason}</p>
+        )}
+        {checks?.items?.flatMap(({ code, violations }) =>
+          violations.map(({ message }, index) => <p key={code + ':' + index}>{message}</p>)
         )}
 
-        {result?.checks?.status === 'rejected' && (
+        {checks?.status === 'rejected' && (
           <small>
             Отказ проверки ответа не означает блокировку операции
             или обвинение покупателя.

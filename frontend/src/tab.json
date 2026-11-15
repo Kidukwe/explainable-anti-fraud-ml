@@ -1,26 +1,8 @@
 [
   {
     "id": "all",
-    "title": "All operations",
+    "title": "Все операции",
     "content": "TransactionsPanel",
     "status": null
-  },
-  {
-    "id": "approved",
-    "title": "Auto Approved",
-    "content": "TransactionsPanel",
-    "status": "approved"
-  },
-  {
-    "id": "banned",
-    "title": "Auto Banned",
-    "content": "TransactionsPanel",
-    "status": "banned"
-  },
-  {
-    "id": "consideration",
-    "title": "Consideration",
-    "content": "TransactionsPanel",
-    "status": "consideration"
   }
 ]

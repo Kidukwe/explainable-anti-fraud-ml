@@ -226,3 +226,28 @@ tbody tr{cursor:pointer}tbody tr:hover td{background:#f7faff}tbody tr.selected:h
   .product-card h3 { overflow-wrap: anywhere; }
   .runtime-status { margin: 32px auto; padding: 20px; }
 }
+
+.action-reason {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.details.details-placeholder {
+  min-height: 160px;
+}
+
+.toolbar :disabled {
+  cursor: not-allowed;
+  opacity: .65;
+}
+
+.operation-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px 16px;
+}
+
+.operation-fields dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
