@@ -1,0 +1,39 @@
+S1 verification: 2026-10-21, macOS arm64
+uv installed in a temporary isolated tools environment.
+
+$ uv --version
+uv 0.10.4 (079e3fd05 2026-02-17)
+Exit code: 0
+
+$ python3 --version
+Python 3.12.7
+Exit code: 0
+
+$ uv sync --frozen
+Audited 25 packages in 5ms
+Exit code: 0
+
+$ uv run --frozen ruff check .
+All checks passed!
+Exit code: 0
+
+$ uv run --frozen ruff format --check .
+32 files already formatted
+Exit code: 0
+
+$ uv run --frozen pytest
+============================= test session starts ==============================
+platform darwin -- Python 3.12.7, pytest-9.1.1, pluggy-1.7.0
+rootdir: <project>
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.15.1
+collected 5 items
+
+tests/test_operations.py .....                                           [100%]
+
+============================== 5 passed in 0.79s ===============================
+Exit code: 0
+
+$ docker compose config --quiet
+BLOCKED: executable 'docker' is not installed. Container build/run not performed locally.
