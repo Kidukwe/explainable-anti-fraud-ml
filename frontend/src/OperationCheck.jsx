@@ -15,7 +15,9 @@ export async function requestMockCheck(operationId, scenarioId) {
   return {
     ...scenario,
     operationId,
-    result: scenario.result ? mockPrediction(operationId, scenarioId) : null,
+    result: scenario.result
+      ? mockPrediction(operationId, scenarioId)
+      : null,
   };
 }
 
@@ -37,8 +39,11 @@ export default function OperationCheck({
         const answer = await request(operationId, scenarioId);
 
         // Игнорируем ответ старого запроса или другой операции.
-        if (!active || answer.operationId !== operationId
-          || (answer.result && answer.result.operation_id !== operationId)) {
+        if (
+          !active ||
+          answer.operationId !== operationId ||
+          (answer.result && answer.result.operation_id !== operationId)
+        ) {
           return;
         }
 
@@ -75,8 +80,7 @@ export default function OperationCheck({
     };
   }, [operationId, scenarioId, attempt, request]);
 
-  // Защита уже на первом рендере с новыми параметрами:
-  // результат предыдущей операции не показываем.
+  // При смене параметров старый результат скрывается сразу.
   const isCurrent =
     response?.operationId === operationId &&
     response?.scenarioId === scenarioId &&
@@ -123,7 +127,9 @@ export default function OperationCheck({
 
   const { shap, llm, checks } = result?.explanation ?? {};
   const hasShap = shap?.status === 'ready';
-  const hasExplanation = llm?.status === 'ready' && checks?.status === 'passed';
+  const hasExplanation =
+    llm?.status === 'ready' &&
+    checks?.status === 'passed';
 
   const checkLabels = {
     passed: 'Текст прошёл проверку',
@@ -145,12 +151,21 @@ export default function OperationCheck({
       <section className="analysis-block">
         <h4>Score модели</h4>
         <p>{hasScore ? String(result.score) : 'Не предоставлено'}</p>
+
         <dl>
-          <dt>Порог</dt><dd>{result?.threshold ?? 'Не предоставлен'}</dd>
-          <dt>Версия модели</dt><dd>{result?.model_version ?? 'Не указана'}</dd>
-          <dt>Версия схемы признаков</dt><dd>{result?.feature_schema_version ?? 'Не указана'}</dd>
-          <dt>Версия набора данных</dt><dd>{result?.dataset_version ?? 'Не указана'}</dd>
+          <dt>Порог</dt>
+          <dd>{result?.threshold ?? 'Не предоставлен'}</dd>
+
+          <dt>Версия модели</dt>
+          <dd>{result?.model_version ?? 'Не указана'}</dd>
+
+          <dt>Версия схемы признаков</dt>
+          <dd>{result?.feature_schema_version ?? 'Не указана'}</dd>
+
+          <dt>Версия набора данных</dt>
+          <dd>{result?.dataset_version ?? 'Не указана'}</dd>
         </dl>
+
         <small>
           Значение не обозначается вероятностью без определения
           шкалы в контракте.
@@ -159,12 +174,36 @@ export default function OperationCheck({
 
       <section className="analysis-block">
         <h4>SHAP — вклады признаков</h4>
+
         {hasShap ? (
           <>
             <p>Версия метода: {shap.method_version}</p>
-            <ul>{shap.features.map(({ name, value, contribution }) => (
-              <li key={name}>{name}: {value}, вклад {contribution}</li>
-            ))}</ul>
+
+            <ul>
+              {shap.features.map(({
+                name,
+                raw_value,
+                transformed_value,
+                contribution,
+              }) => (
+                <li key={name}>
+                  <strong>{name}</strong>
+
+                  <dl>
+                    <dt>Исходное значение</dt>
+                    <dd>
+                      {raw_value == null ? 'Нет значения' : raw_value}
+                    </dd>
+
+                    <dt>Преобразованное значение</dt>
+                    <dd>{transformed_value}</dd>
+
+                    <dt>Вклад</dt>
+                    <dd>{contribution}</dd>
+                  </dl>
+                </li>
+              ))}
+            </ul>
           </>
         ) : (
           <p>{shap?.reason ?? 'SHAP-объяснение отсутствует'}</p>
@@ -173,32 +212,45 @@ export default function OperationCheck({
 
       <section className="analysis-block">
         <h4>LLM — текстовое объяснение</h4>
+
         <p>
           {hasExplanation
             ? llm.text
             : (llm?.reason ?? 'Текстовое объяснение отсутствует')}
         </p>
+
         {!hasExplanation && hasShap && (
           <p>Шаблон SHAP: {shap.template_text}</p>
         )}
-        {hasExplanation && <small>Версии LLM и промпта: {llm.model_version}, {llm.prompt_version}</small>}
+
+        {hasExplanation && (
+          <small>
+            Версии LLM и промпта: {llm.model_version}, {llm.prompt_version}
+          </small>
+        )}
       </section>
 
       <section className="analysis-block">
         <h4>Checks — проверка ответа</h4>
+
         <p>
           {checks
-            ? checkLabels[checks.status] ??
-              'Статус проверки не распознан'
+            ? checkLabels[checks.status] ?? 'Статус проверки не распознан'
             : 'Результат проверок не предоставлен'}
         </p>
 
-        {checks?.checker_version && <p>Версия проверки: {checks.checker_version}</p>}
+        {checks?.checker_version && (
+          <p>Версия проверки: {checks.checker_version}</p>
+        )}
+
         {checks?.reason && (
           <p className="check-reason">{checks.reason}</p>
         )}
+
         {checks?.items?.flatMap(({ code, violations }) =>
-          violations.map(({ message }, index) => <p key={code + ':' + index}>{message}</p>)
+          violations.map(({ message }, index) => (
+            <p key={code + ':' + index}>{message}</p>
+          )),
         )}
 
         {checks?.status === 'rejected' && (

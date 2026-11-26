@@ -1,5 +1,4 @@
 // Демонстрационные сценарии UI.
-
 export const mockScenarios = [
   {
     id: 'loading',
@@ -30,72 +29,75 @@ export const mockScenarios = [
     },
   },
   {
-  id: 'modelUnavailable',
-  title: 'Модель недоступна',
-  state: 'error',
-  message: 'Модель временно недоступна',
-  result: null,
-  error: {
-    request_id: 'demo-request-model-unavailable',
+    id: 'modelUnavailable',
+    title: 'Модель недоступна',
+    state: 'error',
+    message: 'Модель временно недоступна',
+    result: null,
     error: {
-      code: 'model_unavailable',
-      message: 'Демонстрационный сценарий недоступности модели.',
-      details: null,
+      request_id: 'demo-request-model-unavailable',
+      error: {
+        code: 'model_unavailable',
+        message: 'Демонстрационный сценарий недоступности модели.',
+        details: null,
+      },
     },
+    canRetry: true,
   },
-  canRetry: true,
-  },
-
-{
-  id: 'validationError',
-  title: 'Некорректный запрос (422)',
-  state: 'error',
-  message: 'Ошибка ввода',
-  result: null,
-  error: {
-    request_id: 'demo-request-validation-error',
+  {
+    id: 'validationError',
+    title: 'Некорректный запрос (422)',
+    state: 'error',
+    message: 'Ошибка ввода',
+    result: null,
     error: {
-      code: 'validation_error',
-      message: 'Демо: укажите корректный ID операции.',
-      details: [{ field: 'operation_id', code: 'required', message: 'Укажите ID операции' }],
+      request_id: 'demo-request-validation-error',
+      error: {
+        code: 'validation_error',
+        message: 'Демо: укажите корректный ID операции.',
+        details: [
+          {
+            field: 'operation_id',
+            code: 'required',
+            message: 'Укажите ID операции',
+          },
+        ],
+      },
     },
+    canRetry: false,
   },
-  canRetry: false,
-},
-{
-  id: 'operationNotFound',
-  title: 'Операция не найдена (404)',
-  state: 'error',
-  message: 'Операция не найдена',
-  result: null,
-  error: {
-    request_id: 'demo-request-operation-not-found',
+  {
+    id: 'operationNotFound',
+    title: 'Операция не найдена (404)',
+    state: 'error',
+    message: 'Операция не найдена',
+    result: null,
     error: {
-      code: 'operation_not_found',
-      message: 'Демо: операция не найдена в наборе данных.',
-      details: null,
+      request_id: 'demo-request-operation-not-found',
+      error: {
+        code: 'operation_not_found',
+        message: 'Демо: операция не найдена в наборе данных.',
+        details: null,
+      },
     },
+    canRetry: false,
   },
-  canRetry: false,
-},
-
-{
-  id: 'internalError',
-  title: 'Ошибка сервера (500)',
-  state: 'error',
-  message: 'Не удалось выполнить запрос',
-  result: null,
-  error: {
-    request_id: 'demo-request-internal-error',
+  {
+    id: 'internalError',
+    title: 'Ошибка сервера (500)',
+    state: 'error',
+    message: 'Не удалось выполнить запрос',
+    result: null,
     error: {
-      code: 'internal_error',
-      message: 'Демо: при обработке запроса произошла ошибка.',
-      details: null,
+      request_id: 'demo-request-internal-error',
+      error: {
+        code: 'internal_error',
+        message: 'Демо: при обработке запроса произошла ошибка.',
+        details: null,
+      },
     },
+    canRetry: true,
   },
-  canRetry: true,
-},
-
   {
     id: 'ready',
     title: 'Готовый ответ — mock',
@@ -112,7 +114,6 @@ export const mockScenarios = [
     result: true,
     error: null,
   },
-
   {
     id: 'llmUnavailable',
     title: 'SHAP готов, LLM недоступна',
@@ -121,7 +122,6 @@ export const mockScenarios = [
     result: true,
     error: null,
   },
-
   {
     id: 'checkRejected',
     title: 'Отказ проверки — mock',
@@ -133,6 +133,14 @@ export const mockScenarios = [
   {
     id: 'checkFailed',
     title: 'Ошибка проверки текста',
+    state: 'ready',
+    message: 'Получен демонстрационный ответ',
+    result: true,
+    error: null,
+  },
+  {
+    id: 'shapMissingValue',
+    title: 'SHAP: исходное значение отсутствует',
     state: 'ready',
     message: 'Получен демонстрационный ответ',
     result: true,
